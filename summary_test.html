@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="input-group">
+      <span class="input-group-text">뉴스 데이터 입력</span>
+      <textarea
+        id="textAreaData"
+        class="form-control"
+        aria-label="With textarea"
+        rows="20"
+      ></textarea>
+    </div>
+
+    <button id="sendData" type="button" class="btn btn-primary">Primary</button>
+    <div id="stringInfo" class="alert alert-dark" role="alert"></div>
+    <div id="showResponseData" class="alert alert-primary" role="alert"></div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      const serverUrl = "http://221.156.60.18:8010/summary";
+      let bodyData = {};
+
+      const btnSendData = document.getElementById("sendData");
+      const textAreaData = document.getElementById("textAreaData");
+      const stringInfo = document.getElementById("stringInfo");
+      const showResponseData = document.getElementById("showResponseData");
+
+      btnSendData.addEventListener("click", () => {
+        const start = new Date();
+        replaceData = textAreaData.value;
+        console.log(replaceData);
+
+        const letterCount = replaceData.length; // 글자 수 (공백 포함)
+        const letterhWithoutSpaces = replaceData.replace(/\s+/g, "").length; // 글자 수(공백 제외)
+        const spaceCount = (replaceData.match(/ /g) || []).length; // 공백 수
+        const wordCount = replaceData.trim().split(/\s+/).length; //단어 수
+
+        let strInfo = `공백포함 글자수: ${letterCount}, 공백제외 글자수: ${letterhWithoutSpaces}, 공백 수 ${spaceCount}, 단어 수: ${wordCount}`;
+        console.log(strInfo);
+
+        stringInfo.innerText = strInfo;
+
+        fetch(serverUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            inputText: replaceData,
+          }),
+        })
+          .then(function (response) {
+            return response.json();
+          })
+          .then((response) => {
+            showResponseData.innerText = response;
+
+            const end = new Date(); // 종료
+            strInfo = `공백포함 글자수: ${letterCount}, 공백제외 글자수: ${letterhWithoutSpaces}, 공백 수 ${spaceCount}, 단어 수: ${wordCount}, 걸리는 시간 : ${
+              ( (end - start) / 1000 )
+            } 초`;
+            stringInfo.innerText = strInfo;
+          })
+          .catch((error) => console.log("error:", error));
+      });
+    </script>
+  </body>
+</html>
